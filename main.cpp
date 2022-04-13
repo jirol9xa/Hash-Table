@@ -3,10 +3,10 @@
 #include "List.h"
 #include "reader.h"
 #include "table.h"
+#include "string.h"
 
 int main()
 {
-    openLogs("logs.txt");
     FILE *fp = fopen("FILE1", "r");
     if (!fp)    
     {
@@ -19,17 +19,35 @@ int main()
     
     fillText(fp, &text);
 
+    for (int i = 0; i < text.size; ++i)
+    {
+        if (strlen(text.words[i]) >= 20)    printf("Long long\n");
+    }
+
+    printf("text size = %d\n", text.size);
+
     Hash_Table table = {};
-    tableCtor(&table, 10000);
+    tableCtor(&table, 1024);
 
     table.hash = hashRol;
 
     fillTable (&table, &text);
     checkTable(&table, &text);
 
+    int sum = 0,
+        nulls = 0;
+    for (int i = 0; i < table.capacity; ++i)
+    {
+        sum += table.data[i].size;
+
+        if (!table.data[i].size)    nulls++;
+    }
+
+    printf("sum = %d, avg = %lg, nulls = %d\n", sum, (double) sum / 1024, nulls);
+
     tableDtor(&table);
+    printf("%p\n", table.data);
     textDtor(&text);
     fclose(fp);
-    closeLogs();
     return 0;
 }

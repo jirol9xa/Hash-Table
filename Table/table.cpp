@@ -12,9 +12,17 @@
     PRINT_LINE;                                 \
     return param;                               \
 }
+#define TABLE_ASSERT(table)                                     \
+{                                                               \
+    tableVerify(table);                                         \
+    if (table->status > (IS_OK | CRTD | DESTR)) ERR(IS_BRKN);   \
+}   
 
 
 static inline int makeRor(int hash);
+
+static int tableVerify(Hash_Table *table);
+
 
 
 u_int32_t hash1(char *elem) 
@@ -104,8 +112,7 @@ SrchStrct findHTElem(Hash_Table *table, char *word)
         return res;
     }
 
-    u_int32_t hash = table->hash(word) % 9999;
-    //fprintf(stderr, "hash = %u\n", hash);
+    u_int32_t hash = table->hash(word) % (table->capacity);
 
     if (hash > table->capacity)
     {
@@ -136,6 +143,7 @@ inline int insertTable(SrchStrct *res, char *word)
 int fillTable(Hash_Table *table, Text *text)
 {
     if (!table || !text)    ERR(ERRS::WRONG_PTR);
+    TABLE_ASSERT(table);
 
     SrchStrct   place = {};
 
@@ -156,6 +164,7 @@ int fillTable(Hash_Table *table, Text *text)
 int checkTable(Hash_Table *table, Text *text)
 {
     if (!table || !text)    ERR(ERRS::WRONG_PTR);
+    TABLE_ASSERT(table);
 
     SrchStrct   place;
 
@@ -165,6 +174,7 @@ int checkTable(Hash_Table *table, Text *text)
 
         if (place.position == -1)   
         {
+            fprintf(stderr, "%s\n", text->words[i + 1]);
             ERR(WRONG_FILL_HT);
         }
     }
@@ -190,6 +200,8 @@ int tableCtor(Hash_Table *table, int capacity)
     }
 
     table->status |= STATS::CRTD;
+
+    TABLE_ASSERT(table);
     return 0;
 }
 
@@ -206,6 +218,34 @@ int tableDtor(Hash_Table *table)
 
     free(table->data);
     table->status = STATS::DSTR;
+
+    TABLE_ASSERT(table);
+    return 0;
+}
+
+
+int tableVerify(Hash_Table *table)
+{
+    if (!table)     ERR(ERRS::WRONG_PTR);
+
+    List lst    = {};
+    int  status = 0;
+
+    for (int i = 0; i < table->size; ++i)
+    {
+        lst = table->data[i];
+
+        verifyList(&lst);
+
+        status = lst.status;
+    
+        if (status & (DISJOINTED_LIST | NOT_RESIZED | EMPTY_ELEM_ERROR))
+            table->status |= LIST_ERR | IS_BRKN;
+    }
+
+    if (table->size > table->capacity)          table->status |= NOT_RESIZED | IS_BRKN;
+    if (table->size > 0 && !table->hash)        table->status |= WRONG_HFUNC | IS_BRKN;
+    if (table->status & CRTD && !table->data)   table->status |= CTOR_ERR    | IS_BRKN;   
 
     return 0;
 }

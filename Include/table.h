@@ -17,7 +17,7 @@
 
     enum ERRS
     {
-        WRONG_PTR    = -1,
+        WRONG_PTR      = -1,
         HASH_OUTOF_RNG = -2, 
         WRONG_FILL_HT  = -3,
         SCND_CREATION  = -4,
@@ -26,11 +26,15 @@
 
     enum STATS
     {
-        CRTD     = 1,
-        DSTR     = 1 << 1,
-        IS_OK    = 1 << 2,
-        FILL_ERR = 1 << 3,
-        LIST_ERR = 1 << 4,
+        CRTD        = 1,
+        DSTR        = 1 << 1,
+        IS_OK       = 1 << 2,
+        IS_BRKN     = 1 << 3,
+        FILL_ERR    = 1 << 4,
+        LIST_ERR    = 1 << 5,
+        WRONG_HFUNC = 1 << 6,
+        DTOR_ERR    = 1 << 7,
+        CTOR_ERR    = 1 << 8,
     };
 
     __uint32_t hash1     (char *elem);

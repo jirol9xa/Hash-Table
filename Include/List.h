@@ -121,7 +121,7 @@
     */
     int listLinearization(List *list);
     int listResize(List *list, int is_upper);
-    int listRemove(List *list, int index, type_t *dest);
+    int listRemove(List *list, int index, type_t *dest = nullptr);
     int findPlace(List *list, int index);
     int unitTest();
     int findElemStr(List *list, type_t elem);
