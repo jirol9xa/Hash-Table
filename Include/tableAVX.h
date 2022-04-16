@@ -2,16 +2,16 @@
     #define TABLE_H
     struct Hash_Table
     {
-        List       *data;
+        alignas(32) List       *data;
         int        size;
         int        capacity = 512;
-        __uint32_t (*hash) (char *word);
+        //unsigned long long (*hash) (unsigned long long crc, unsigned long long v) = _mm_crc32_u64;
         int        status;
     };
 
     struct SrchStrct
     {
-        List *list;
+        alignas(64) List *list;
         int   position;
     };
 
@@ -42,14 +42,12 @@
     __uint32_t hashLength(char *elem);
     __uint32_t hashSum   (char *elem);
     __uint32_t hashRol   (char *elem);
-    __uint32_t hashCrc32 (char *elem);
-
 
     int tableCtor(Hash_Table *table, int capacity = 512);
     int tableDtor(Hash_Table *table);
 
-    inline int insertTable(SrchStrct *res, char *word);
-    SrchStrct  findHTElem (Hash_Table *table, char *word);
+    inline int insertTable(SrchStrct *res, __m256i word);
+    SrchStrct  findHTElem (Hash_Table *table, __m256i word);
     int        fillTable  (Hash_Table *table, Text *text);
     int        checkTable (Hash_Table *table, Text *text);
 

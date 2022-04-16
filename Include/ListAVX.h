@@ -1,7 +1,7 @@
 #ifndef LIST_H
     #define LIST_H
 
-    typedef char * type_t;
+    typedef __m256i type_t;
 
     typedef struct Elem_t
     {
@@ -12,7 +12,7 @@
 
     typedef struct LIST
     {
-        elem_t   *array;
+        alignas(32) elem_t   *array;
         int    tail;
         int    head;
         int    size;

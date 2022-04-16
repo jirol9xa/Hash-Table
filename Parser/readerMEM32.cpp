@@ -6,14 +6,14 @@
 
 #define PRINT_LINE printf("[%s:%d]\n", __func__, __LINE__);
 
-#define IS_RESIZE(text)                                             \
-{                                                                   \
-    int size     = text->size;                                      \
-    int capacity = text->capacity;                                  \
-    bool upper   = size >= capacity - 1;                            \
-    bool lower   = size < capacity / 2;                             \
-                                                                    \
-    if (upper || lower)     textResize(text, upper + !lower);       \
+#define IS_RESIZE(text)                                               \
+{                                                                     \
+    int size     = text->size;                                        \
+    int capacity = text->capacity;                                    \
+    bool upper   = size >= capacity - 1;                              \
+    /*bool lower   = size < capacity / 3;*/                           \
+                                                                      \
+    if (upper /*|| lower*/)     textResize(text, upper /*+ !lower*/); \
 }                               
 
 
@@ -22,7 +22,7 @@ const char BAD_SYMBS[] = "'!@#$%^&*()_+-?></.,,\"";
 
 static long fileLength(FILE *fp);
 static int  readFile(FILE *fp, long length, Text *text);
-static int  textResize(Text *text, int is_upper);
+static int  textResize(Text *text, bool is_upper);
 static void printErr(int error);
 
 
@@ -71,12 +71,15 @@ static int  readFile(FILE *fp, long length, Text *text)
     buffer[length] = '\0';
 
     IS_RESIZE(text);
-    text->words[text->size] = buffer;
-    text->size++;
+    //text->words[text->size] = buffer;
+    //text->size++;
+
+    int prev_i = 0;
 
     for (int i = 1; i < length; ++i)
     {
         if (strchr(BAD_SYMBS, buffer[i]))   buffer[i] = ' ';
+
         if (buffer[i] == ' ' || buffer[i] == '\n')
         {
             buffer[i] = '\0';
@@ -84,29 +87,57 @@ static int  readFile(FILE *fp, long length, Text *text)
             if (i + 1 < length && buffer[i + 1] != ' ' && buffer[i + 1] != '\n')
             {
                 IS_RESIZE(text);
-                text->words[text->size] = buffer + i + 1;
+
+                //fprintf(stderr, "size = %d, text = %p, word = %p\n", text->size, text->words[text->size], buffer + prev_i);
+
+                strcpy(text->words[text->size], buffer + prev_i);
+
                 text->size++;
                 ++i;
             }
+
+            while (buffer[i] == ' ' || buffer[i] == '\n' && i < length)     ++i;
+
+            prev_i = i;
         }
     }
 
+    free(buffer);
     return text->size;
-}
+};
 
 
-static int textResize(Text *text, int is_upper)
+static int textResize(Text *text, bool is_upper)
 {
     if (!text)  return INVALID_PTR;
 
     int capacity   = text->capacity;
     capacity       = (capacity * 2 + !capacity) * is_upper + !is_upper * (capacity / 2);
-    text->capacity = capacity;
+
+    if (!is_upper)
+    {
+        for (int i = text->capacity; i >= capacity; --i)
+        {
+            free(text->words[i]);
+        }
+    }
 
     void *temp_ptr = realloc(text->words, capacity * sizeof(char *));
     if (!temp_ptr)  return MEM_OVEFLOW;
         
     text->words = (char **) temp_ptr;
+    
+    if (is_upper)
+    {
+        for (int i = text->capacity; i < capacity; ++i)
+        {
+            text->words[i] = (char *) calloc(32, sizeof(char));
+        }
+    }
+
+    text->capacity = capacity;
+
+    printf("cap = %d\n", text->capacity);
 
     return 0;
 }
@@ -120,6 +151,11 @@ int textCtor(Text *text, int capacity)
     text->capacity = capacity;
 
     text->words = (char **) calloc (capacity, sizeof(char *));
+
+    for (int i = 0; i < capacity; i++)
+    {
+        text->words[i] = (char *) calloc(32, sizeof(char));
+    }
 
     text->status |= EXIST;
 
@@ -137,7 +173,13 @@ int textDtor(Text *text)
     //    free(text->words[i]);
     //}
 
-    free(text->words[0]);
+    printf("text cap = %d\n", text->capacity);
+
+    for (int i = 0; i < text->capacity; ++i)
+    {
+        free(text->words[i]);
+    }
+
     free(text->words);
 
     text->status |= DESTR;

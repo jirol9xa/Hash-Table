@@ -1,9 +1,10 @@
 struct Text
 {
-    char **words;
+    alignas(32) __m256i words[250000];
     int    size;
     int    status;
     int    capacity;
+    alignas(32) char   buffer[32];
 };
 
 

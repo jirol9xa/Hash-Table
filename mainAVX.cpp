@@ -1,11 +1,10 @@
 #include "stdio.h"
 #include "logsLib.h"
+#include <immintrin.h>
 #include "List.h"
-#include "reader.h"
-#include "table.h"
+#include "readerAVX.h"
+#include "tableAVX.h"
 #include "string.h"
-
-extern "C" unsigned int crc32(char *elem);
 
 int main()
 {
@@ -23,9 +22,6 @@ int main()
 
     Hash_Table table = {};
     tableCtor(&table, 1024);
-
-    table.hash = crc32;
-;
 
     fillTable (&table, &text);
     checkTable(&table, &text);
