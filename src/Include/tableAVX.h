@@ -41,7 +41,7 @@
     __uint32_t hashAscii (char *elem);
     __uint32_t hashLength(char *elem);
     __uint32_t hashSum   (char *elem);
-    __uint32_t hashRol   (char *elem);
+    __uint32_t hashRor   (char *elem);
 
     int tableCtor(Hash_Table *table, int capacity = 512);
     int tableDtor(Hash_Table *table);
