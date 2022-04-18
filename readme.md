@@ -173,8 +173,8 @@ We tried to optimize the program by writing the most resource-intensive parts of
 
 For running noAVX version
 
-    make noAVX && ./pics/table
+    make noAVX && /table
 
 For running AVX version
 
-    make AVX && ./pics/avx
+    make AVX && /avx
