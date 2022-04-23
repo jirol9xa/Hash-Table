@@ -1,5 +1,6 @@
-#ifndef TABLE_H
-    #define TABLE_H
+#ifndef TABLEAVX_H
+    #define TABLEAVX_H
+    
     struct Hash_Table
     {
         alignas(32) List       *data;

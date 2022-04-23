@@ -1,5 +1,6 @@
 #ifndef TABLE_H
     #define TABLE_H
+    
     struct Hash_Table
     {
         List       *data;
