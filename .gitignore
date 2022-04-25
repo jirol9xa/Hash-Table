@@ -4,3 +4,4 @@ table
 .gitignore
 perf.data
 perf.data.old
+.Makefile.swp
